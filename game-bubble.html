@@ -1,0 +1,555 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Bubble Shooter — Game</title>
+<style>
+  :root{
+    --bg: linear-gradient(180deg,#081229,#0b2a45);
+    --panel: rgba(255,255,255,0.03);
+    --muted: #cbd5e1;
+  }
+  html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;}
+  body{display:flex;align-items:center;justify-content:center;background:var(--bg);color:#f8fafc;}
+  .wrap{width:100%;max-width:980px;padding:20px;}
+  .game-row{display:flex;gap:18px;align-items:flex-start;}
+  .canvas-wrap{background:var(--panel);border-radius:12px;padding:12px;box-shadow:0 8px 30px rgba(2,6,23,0.6);}
+  canvas{display:block;background:linear-gradient(180deg,#072033,#06324a);border-radius:8px;}
+  .side{width:260px;display:flex;flex-direction:column;gap:12px;}
+  .card{background:rgba(255,255,255,0.03);padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,0.04);}
+  h2{margin:0 0 6px 0;font-size:16px}
+  .muted{color:var(--muted);font-size:13px}
+  .btn{padding:8px 10px;border-radius:8px;border:0;background:#2dd4bf;color:#042022;font-weight:700;cursor:pointer;}
+  .btn.red{background:#fb7185;color:white;}
+  .row{display:flex;gap:8px;align-items:center;}
+  .center{display:flex;align-items:center;justify-content:center;}
+  .small{font-size:13px;color:var(--muted)}
+  .footer{margin-top:10px;font-size:12px;color:#9fb5c9}
+  @media (max-width:920px){
+    .game-row{flex-direction:column;align-items:center;}
+    .side{width:100%}
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="game-row">
+      <div class="canvas-wrap card">
+        <canvas id="gameCanvas" width="640" height="720"></canvas>
+      </div>
+
+      <div class="side">
+        <div class="card">
+          <h2>Bubble Shooter</h2>
+          <div class="muted">Click chuột hoặc chạm để bắn. Hướng bắn theo chuột.</div>
+          <div style="height:8px"></div>
+          <div class="row">
+            <div class="small">Màu hiện tại:</div>
+            <div id="currentColor" style="width:36px;height:36px;border-radius:50%;border:2px solid rgba(255,255,255,0.06)"></div>
+            <div class="small">Màu tiếp theo:</div>
+            <div id="nextColor" style="width:28px;height:28px;border-radius:50%;border:1px solid rgba(255,255,255,0.04)"></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="row" style="justify-content:space-between;align-items:center">
+            <div>
+              <div class="small">Điểm</div>
+              <div style="font-weight:800;font-size:22px" id="score">0</div>
+            </div>
+            <div>
+              <div class="small">Lượt</div>
+              <div style="font-weight:700" id="shots">0</div>
+            </div>
+          </div>
+          <div style="height:12px"></div>
+          <div class="row">
+            <button class="btn" id="resetBtn">🔄 Chơi lại</button>
+            <button class="btn red" id="dropRowBtn">⬇️ Thêm hàng</button>
+          </div>
+        </div>
+
+        <div class="card small">
+          <div><b>Cách chơi:</b></div>
+          <ul style="margin:8px 0 0 18px;padding:0;">
+            <li>Ghép 3+ bong bóng cùng màu để nổ.</li>
+            <li>Bong bóng không dính đỉnh sẽ rơi.</li>
+            <li>Sử dụng góc bắn để nhắm vào góc khó.</li>
+          </ul>
+        </div>
+
+        <div class="card footer">Nhẹ, offline — phù hợp thêm vào trang giải trí.</div>
+      </div>
+    </div>
+  </div>
+
+<script>
+/*
+  Bubble Shooter - basic but functional.
+  - Grid uses hex/offset rows
+  - Colors: array of RGB
+  - Shooting physics: constant velocity, reflect off walls
+  - Snap to grid: when distance to nearest grid center <= radius*1.05
+  - Cluster removal: flood fill for >=3 same-color
+  - Gravity removal: clusters not connected to top fall
+*/
+
+// CONFIG
+const canvas = document.getElementById("gameCanvas");
+const ctx = canvas.getContext("2d");
+const W = canvas.width, H = canvas.height;
+
+const ROWS_INIT = 6;         // initial filled rows
+const COLS = 12;             // approximate columns
+const R = 18;                // bubble radius
+const GAP = 2;               // gap between bubbles
+const COLORS = [
+  "#FF6B6B", // red
+  "#FFD166", // yellow
+  "#6BCB77", // green
+  "#4D96FF", // blue
+  "#C77DFF", // purple
+  "#FF9F1C"  // orange
+];
+const SHOOT_SPEED = 700;     // pixels per second
+
+// grid layout: staggered rows (odd rows offset)
+const CELL_W = R*2 + GAP;
+const ROW_H = Math.sqrt(3)*R + GAP*0.5; // packed hex height approx
+
+// derived
+const COL_COUNT = COLS;
+const ROW_COUNT = Math.floor((H/ROW_H) - 1); // enough rows
+const ORIGIN_X = (W - COL_COUNT * CELL_W)/2 + R;
+const TOP_MARGIN = 40;
+
+// Game state
+let grid = []; // 2D array [r][c] = {colorIndex} or null
+let current = null; // {x,y,dx,dy,colorIndex}
+let nextBubble = null;
+let score = 0;
+let shots = 0;
+let isShooting = false;
+let mousePos = {x: W/2, y: H - 40};
+
+const currentEl = document.getElementById("currentColor");
+const nextEl = document.getElementById("nextColor");
+const scoreEl = document.getElementById("score");
+const shotsEl = document.getElementById("shots");
+
+// init functions
+function initGrid() {
+  grid = [];
+  for(let r=0;r<ROW_COUNT;r++){
+    grid[r] = new Array(COL_COUNT).fill(null);
+  }
+  // Fill initial rows with random colors in staggered layout
+  for(let r=0; r<ROWS_INIT; r++){
+    for(let c=0; c<COL_COUNT; c++){
+      // In staggered rows we may disable last column
+      if(isCellExists(r,c)) {
+        grid[r][c] = { color: randColorIndex() };
+      }
+    }
+  }
+}
+
+function isCellExists(r,c){
+  // For odd rows (1-indexed), shift half cell at right -> still full columns for simplicity
+  // We'll allow all columns but when rendering we offset odd rows by R+GAP
+  return c>=0 && c<COL_COUNT && r>=0 && r<ROW_COUNT;
+}
+
+function randColorIndex(){
+  return Math.floor(Math.random() * COLORS.length);
+}
+
+function spawnBubbles(){
+  if(!nextBubble) nextBubble = { color: randColorIndex() };
+  current = {
+    x: W/2,
+    y: H - 32,
+    color: nextBubble.color,
+    radius: R,
+    dx: 0,
+    dy: 0
+  };
+  nextBubble = { color: randColorIndex() };
+  updateColorUI();
+  isShooting = false;
+}
+
+// UI update
+function updateColorUI(){
+  currentEl.style.background = COLORS[current.color];
+  nextEl.style.background = COLORS[nextBubble.color];
+  scoreEl.textContent = score;
+  shotsEl.textContent = shots;
+}
+
+// coordinate conversion: grid index -> pixel center
+function cellCenter(r,c){
+  const offsetX = (r % 2 === 1) ? (CELL_W/2) : 0;
+  const x = ORIGIN_X + c * CELL_W + offsetX;
+  const y = TOP_MARGIN + r * ROW_H;
+  return {x,y};
+}
+
+// find nearest free cell by pixel position
+function findNearestCell(x,y){
+  let best = null;
+  let bestDist = Infinity;
+  for(let r=0;r<ROW_COUNT;r++){
+    for(let c=0;c<COL_COUNT;c++){
+      if(!isCellExists(r,c)) continue;
+      if(grid[r][c] !== null) continue;
+      const center = cellCenter(r,c);
+      const dx = center.x - x;
+      const dy = center.y - y;
+      const d = Math.hypot(dx,dy);
+      if(d < bestDist){
+        bestDist = d;
+        best = {r,c,dist:d,center};
+      }
+    }
+  }
+  return best;
+}
+
+// collision detection with walls
+function reflectIfWall(b){
+  if(b.x - b.radius <= 0 && b.dx < 0) b.dx *= -1;
+  if(b.x + b.radius >= W && b.dx > 0) b.dx *= -1;
+}
+
+// snapshot neighbors (6-direction in hex layout)
+function neighborCoords(r,c){
+  // using offset coordinates: even-q vertical layout concept
+  const neighbors = [];
+  // left/right
+  neighbors.push([r, c-1]);
+  neighbors.push([r, c+1]);
+  // up/down
+  neighbors.push([r-1, c]);
+  neighbors.push([r+1, c]);
+  // two offset neighbors depend on row parity
+  if(r % 2 === 0){
+    neighbors.push([r-1, c-1]);
+    neighbors.push([r+1, c-1]);
+  } else {
+    neighbors.push([r-1, c+1]);
+    neighbors.push([r+1, c+1]);
+  }
+  // filter valid
+  return neighbors.filter(([rr,cc]) => rr>=0 && rr<ROW_COUNT && cc>=0 && cc<COL_COUNT && isCellExists(rr,cc));
+}
+
+// main loop
+let lastTime = performance.now();
+function loop(now){
+  const dt = (now - lastTime) / 1000;
+  lastTime = now;
+  update(dt);
+  render();
+  requestAnimationFrame(loop);
+}
+
+function update(dt){
+  if(current && current.dx !== 0 || current.dy !== 0){
+    // move
+    if(isShooting){
+      current.x += current.dx * dt;
+      current.y += current.dy * dt;
+      reflectIfWall(current);
+      // check collision with top boundary
+      if(current.y - current.radius <= TOP_MARGIN + 2){
+        attachCurrentToGrid();
+      } else {
+        // check collision with existing bubbles
+        for(let r=0;r<ROW_COUNT;r++){
+          for(let c=0;c<COL_COUNT;c++){
+            const cell = grid[r][c];
+            if(cell){
+              const center = cellCenter(r,c);
+              const d = Math.hypot(center.x - current.x, center.y - current.y);
+              if(d <= current.radius*2 - 0.6){ // touch
+                attachCurrentToGrid();
+                return;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+// attach current bubble to nearest grid cell
+function attachCurrentToGrid(){
+  // find nearest free cell
+  const nearest = findNearestCell(current.x, current.y);
+  if(!nearest){
+    // no space -> game over?
+    spawnBubbles();
+    return;
+  }
+  // place at nearest cell
+  grid[nearest.r][nearest.c] = { color: current.color };
+  shots++;
+  isShooting = false;
+  current.dx = current.dy = 0;
+  // after placing, check clusters
+  handleClusters(nearest.r, nearest.c);
+  // then spawn next
+  spawnBubbles();
+  updateColorUI();
+}
+
+// flood fill to find same-color cluster
+function floodFill(r,c,colorIdx,visited){
+  const key = r + "," + c;
+  if(visited.has(key)) return;
+  if(!grid[r] || !grid[r][c]) return;
+  if(grid[r][c].color !== colorIdx) return;
+  visited.add(key);
+  const neigh = neighborCoords(r,c);
+  for(const [rr,cc] of neigh){
+    floodFill(rr,cc,colorIdx,visited);
+  }
+}
+
+// remove nodes given set
+function removeCluster(setKeys){
+  for(const key of setKeys){
+    const [r,c] = key.split(",").map(Number);
+    grid[r][c] = null;
+  }
+  // update score
+  score += setKeys.size * 10;
+  pushLog(`Nổ ${setKeys.size} bong bóng → +${setKeys.size*10} điểm`);
+  updateColorUI();
+  // after removal, remove floating clusters
+  removeFloatingClusters();
+}
+
+// remove floating clusters not connected to top rows
+function removeFloatingClusters(){
+  const attached = new Set();
+  // start flood fill from all bubbles in top row(s)
+  for(let c=0;c<COL_COUNT;c++){
+    for(let r=0;r<ROW_COUNT;r++){
+      if(grid[r][c]){
+        // if this cell is reachable to top (we consider top row r==0 connected)
+        if(r === 0){
+          floodFillAttached(r,c, attached);
+        }
+        break; // only first cell in column encountered downwards (optimization)
+      }
+    }
+  }
+  // any bubble not in attached should fall
+  let fallen = 0;
+  for(let r=0;r<ROW_COUNT;r++){
+    for(let c=0;c<COL_COUNT;c++){
+      if(grid[r][c]){
+        const key = r + "," + c;
+        if(!attached.has(key)){
+          grid[r][c] = null;
+          fallen++;
+        }
+      }
+    }
+  }
+  if(fallen > 0){
+    score += fallen * 5;
+    pushLog(`${fallen} bong bóng rơi xuống. +${fallen*5} điểm`);
+    updateColorUI();
+  }
+}
+
+// helper to flood fill for attached clusters (any color)
+function floodFillAttached(r,c,attached){
+  const key = r + "," + c;
+  if(attached.has(key)) return;
+  if(!grid[r] || !grid[r][c]) return;
+  attached.add(key);
+  const neigh = neighborCoords(r,c);
+  for(const [rr,cc] of neigh){
+    floodFillAttached(rr,cc,attached);
+  }
+}
+
+// handle cluster logic after placing
+function handleClusters(r,c){
+  const colorIdx = grid[r][c].color;
+  const same = new Set();
+  floodFill(r,c,colorIdx,same);
+  if(same.size >= 3){
+    // remove them
+    removeCluster(same);
+  }
+}
+
+// input handlers
+function onPointerMove(e){
+  const rect = canvas.getBoundingClientRect();
+  const x = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
+  const y = (e.touches ? e.touches[0].clientY : e.clientY) - rect.top;
+  mousePos = {x,y};
+  // if not shooting, point current toward mouse
+  if(current && !isShooting){
+    // no-op: draw will orient cannon visually
+  }
+}
+
+function onPointerDown(e){
+  if(!current) return;
+  if(isShooting) return;
+  // compute direction
+  const rect = canvas.getBoundingClientRect();
+  const x = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
+  const y = (e.touches ? e.touches[0].clientY : e.clientY) - rect.top;
+  // clamp angle so you can't shoot backward
+  let vx = x - current.x;
+  let vy = y - current.y;
+  const mag = Math.hypot(vx,vy);
+  if(mag < 10) return;
+  vx /= mag; vy /= mag;
+  // prevent shooting downward
+  if(vy > -0.2) vy = -0.2;
+  // set velocity
+  current.dx = vx * SHOOT_SPEED;
+  current.dy = vy * SHOOT_SPEED;
+  isShooting = true;
+}
+
+// rendering
+function render(){
+  ctx.clearRect(0,0,W,H);
+  // background gradient is canvas background; draw a subtle grid top area
+  // draw placed bubbles
+  for(let r=0;r<ROW_COUNT;r++){
+    for(let c=0;c<COL_COUNT;c++){
+      const cell = grid[r][c];
+      const center = cellCenter(r,c);
+      if(cell){
+        drawBubble(center.x, center.y, R, COLORS[cell.color]);
+      } else {
+        // optionally draw faint placeholder
+      }
+    }
+  }
+
+  // draw shooter guide
+  // cannon base
+  ctx.save();
+  ctx.translate(W/2, H - 34);
+  // draw guide line from cannon to mouse
+  const mx = mousePos.x - (W/2);
+  const my = mousePos.y - (H - 34);
+  const ang = Math.atan2(my, mx);
+  // limit angle
+  const minAng = -Math.PI + 0.3;
+  const maxAng = -0.15;
+  const clampedAng = Math.max(maxAng, Math.min(minAng, ang));
+  const dirX = Math.cos(clampedAng);
+  const dirY = Math.sin(clampedAng);
+  ctx.strokeStyle = "rgba(255,255,255,0.08)";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(0,0);
+  ctx.lineTo(dirX * 200, dirY * 200);
+  ctx.stroke();
+  ctx.restore();
+
+  // draw current & next bubble at bottom center
+  if(current){
+    drawBubble(current.x, current.y, current.radius, COLORS[current.color], true);
+  }
+  if(nextBubble){
+    const nx = W - 60; const ny = H - 36;
+    drawBubble(nx, ny, R*0.8, COLORS[nextBubble.color]);
+    // small label
+    ctx.fillStyle = "#cde6f7";
+    ctx.font = "12px Inter, Arial";
+    ctx.fillText("Next", nx - 18, ny + 32);
+  }
+}
+
+// draw a bubble with glossy effect
+function drawBubble(x,y,r,color,stroke){
+  ctx.beginPath();
+  ctx.fillStyle = color;
+  ctx.arc(x,y,r,0,Math.PI*2);
+  ctx.fill();
+  // rim
+  ctx.lineWidth = 2;
+  ctx.strokeStyle = "rgba(0,0,0,0.12)";
+  ctx.stroke();
+  // highlight
+  ctx.beginPath();
+  ctx.fillStyle = "rgba(255,255,255,0.25)";
+  ctx.ellipse(x - r*0.35, y - r*0.45, r*0.45, r*0.25, Math.PI/4, 0, Math.PI*2);
+  ctx.fill();
+  if(stroke){
+    ctx.lineWidth = 1.2;
+    ctx.strokeStyle = "rgba(255,255,255,0.1)";
+    ctx.stroke();
+  }
+}
+
+// logging helper in side panel (simple)
+function pushLog(txt){
+  // find side log container (we'll append)
+  // For simplicity, use console + small DOM visual effect
+  console.log(txt);
+}
+
+// game controls
+document.getElementById("resetBtn").addEventListener("click", () => {
+  initGrid();
+  spawnBubbles();
+  score = 0; shots = 0;
+  updateColorUI();
+});
+document.getElementById("dropRowBtn").addEventListener("click", () => {
+  // shift grid down one row, drop last row out
+  for(let r=ROW_COUNT-1;r>0;r--){
+    grid[r] = grid[r-1].map(cell => cell ? { color: cell.color } : null);
+  }
+  // new top row random
+  grid[0] = new Array(COL_COUNT).fill(null);
+  for(let c=0;c<COL_COUNT;c++){
+    if(isCellExists(0,c)) grid[0][c] = { color: randColorIndex() };
+  }
+  // penalize slightly
+  score = Math.max(0, score - 30);
+  pushLog("Thêm hàng từ trên xuống!");
+  updateColorUI();
+});
+
+// pointer events
+canvas.addEventListener("mousemove", onPointerMove);
+canvas.addEventListener("touchmove", (e)=>{ onPointerMove(e); e.preventDefault(); }, {passive:false});
+canvas.addEventListener("mousedown", onPointerDown);
+canvas.addEventListener("touchstart", (e)=>{ onPointerDown(e); e.preventDefault(); }, {passive:false});
+
+// initial start
+initGrid();
+spawnBubbles();
+updateColorUI();
+requestAnimationFrame(loop);
+
+// auto-aim small update for current pos when not shooting
+setInterval(()=> {
+  if(current && !isShooting){
+    current.x = W/2;
+    current.y = H - 32;
+    updateColorUI();
+  }
+}, 100);
+
+</script>
+</body>
+</html>

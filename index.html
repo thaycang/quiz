@@ -932,25 +932,6 @@
             }
         }
 
-            #timerBar {
-    height: 8px;
-    background: limegreen;
-    transition: width 1s linear;
-}
-
-.shake {
-    animation: shake 0.3s infinite;
-}
-
-@keyframes shake {
-    0% { transform: translateX(0); }
-    25% { transform: translateX(-3px); }
-    50% { transform: translateX(3px); }
-    75% { transform: translateX(-3px); }
-    100% { transform: translateX(0); }
-}
-
-
         @media (max-width: 768px) {
             .ranking-section {
                 flex-direction: column;
@@ -1059,7 +1040,12 @@
                 </div>
                 <div class="fun-card-content">
                     <div class="icon-large">✨</div>
-                    <button class="game-btn">🎯 Chế độ 10 Giây</button>
+            <iframe 
+                src="game-bubble.html" 
+                width="500" 
+                height="700" 
+                style="border:none; display:block; margin:auto;">
+            </iframe>
 
                 </div>
                  
@@ -1416,57 +1402,6 @@
                 document.getElementById('fun-notification').classList.remove('show');
             }, 5000);
         }
-//trò chơi 10 giây
-        let timeLeft = 10;
-let timer;
-let score = 0;
-let combo = 0;
-
-function startQuickMode() {
-    timeLeft = 10;
-    combo = 0;
-    nextQuestion();
-}
-
-function nextQuestion() {
-    clearInterval(timer);
-    timeLeft = 10;
-
-    showQuestion();
-
-    timer = setInterval(() => {
-        timeLeft--;
-        updateTimerBar(timeLeft);
-
-        if (timeLeft <= 3) {
-            document.getElementById("timerBar").classList.add("shake");
-        }
-
-        if (timeLeft === 0) {
-            clearInterval(timer);
-            combo = 0;
-            nextQuestion();
-        }
-    }, 1000);
-}
-
-function answer(correct) {
-    clearInterval(timer);
-
-    if (correct) {
-        score += (10 + combo * 2);
-        combo++;
-    } else {
-        combo = 0;
-    }
-
-    nextQuestion();
-}
-
-function updateTimerBar(t) {
-    document.getElementById("timerBar").style.width = (t * 10) + "%";
-}
-
         
         function viewAchievements() {
             alert("Tính năng xem thành tựu chi tiết đang được phát triển. Quay lại sau nhé!");
