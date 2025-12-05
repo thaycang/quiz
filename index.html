@@ -1,0 +1,1410 @@
+<!-- <!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Học cùng thầy Cang</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+        }
+
+        
+
+        .dropdown-content a {
+            display: block;
+            padding: 12px 20px;
+            text-decoration: none;
+            color: #333;
+            border-bottom: 1px solid #f0f0f0;
+            transition: background-color 0.3s ease;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .dropdown-content a:hover {
+            background-color: #f8f9fa;
+            color: #007bff;
+        }
+
+        /* SỬA: Thay đổi cách hiển thị dropdown */
+        .dropdown:hover .dropdown-content,
+        .dropdown-content:hover {
+            display: block;
+        }
+
+        .dropdown-toggle {
+            cursor: pointer;
+            position: relative;
+        }
+
+        .dropdown-toggle::after {
+            content: "▼";
+            font-size: 10px;
+            margin-left: 8px;
+        }
+
+        /* tiêu đề xếp hạng */
+        .ranking-title {
+                font-size: 28px;
+                font-weight: bold;
+                color: black; /* màu nổi bật */
+                text-align: center;
+                padding-bottom: 10px;
+                margin: 0;
+                background-color: yellow;
+            }
+
+        /* Ranking Section */
+        .ranking-section {
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            max-width: 1400px;
+
+            /* margin: 40px auto;
+            padding: 60px 40px; */
+
+            margin: 0px auto;
+            padding: 40px 40px 60px 40px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            gap: 50px;
+        }
+
+        .rank-item {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 0 1 auto;
+            transition: transform 0.4s ease;
+        }
+        
+
+        /* Hiệu ứng hover cho toàn bộ item */
+        .rank-item:hover {
+            transform: translateY(-15px);
+        }
+
+        .rank-2 {
+            order: 1;
+            margin-bottom: 0;
+        }
+
+        .rank-1 {
+            order: 2;
+            margin-bottom: 40px;
+        }
+
+        .rank-3 {
+            order: 3;
+            margin-bottom: 0;
+        }
+
+        .rank-image-container {
+            border-radius: 15px;
+            margin-bottom: 20px;
+            overflow: hidden;
+            position: relative;
+            border: 4px solid;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f8f9fa;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+        }
+
+        /* Hiệu ứng hover phóng to MẠNH cho container */
+        .rank-image-container:hover {
+            transform: scale(1.25);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            z-index: 100;
+            border-width: 5px;
+        }
+
+        /* Hiệu ứng đặc biệt cho hạng 1 */
+        .rank-1 .rank-image-container:hover {
+            transform: scale(1.3);
+            box-shadow: 0 25px 50px rgba(255,215,0,0.4);
+        }
+
+        .rank-1 .rank-image-container {
+            width: 280px;
+            height: 210px;
+            border-color: gold;
+            background: linear-gradient(135deg, #fff9e6, #fff3cc);
+        }
+
+        .rank-2 .rank-image-container {
+            width: 250px;
+            height: 188px;
+            border-color: silver;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+        }
+
+        .rank-3 .rank-image-container {
+            width: 250px;
+            height: 188px;
+            border-color: #cd7f32;
+            background: linear-gradient(135deg, #fdf5e6, #faebd7);
+        }
+
+        .rank-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 11px;
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        /* Hiệu ứng hover phóng to và nổi bật cho ảnh */
+        .rank-image-container:hover .rank-image {
+            transform: scale(1.1);
+            filter: brightness(1.1) contrast(1.1);
+        }
+
+        .rank-badge {
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 12px;
+            padding: 8px 20px;
+            border-radius: 25px;
+            color: white;
+            transition: all 0.4s ease;
+        }
+
+        /* Hiệu ứng cho badge khi hover */
+        .rank-item:hover .rank-badge {
+            transform: scale(1.1);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .rank-1 .rank-badge {
+            background: gold;
+            color: #333;
+        }
+
+        .rank-2 .rank-badge {
+            background: silver;
+            color: #333;
+        }
+
+        .rank-3 .rank-badge {
+            background: #cd7f32;
+            color: white;
+        }
+
+        .rank-name {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            transition: all 0.4s ease;
+        }
+
+        /* Hiệu ứng cho tên khi hover */
+        .rank-item:hover .rank-name {
+            transform: scale(1.05);
+            color: #007bff;
+        }
+
+        .rank-score {
+            color: #666;
+            font-size: 16px;
+            font-weight: 500;
+            transition: all 0.4s ease;
+        }
+
+        /* Hiệu ứng cho điểm số khi hover */
+        .rank-item:hover .rank-score {
+            transform: scale(1.05);
+            color: #ff6b6b;
+            font-weight: bold;
+        }
+
+        /* Content Section */
+        .content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 10px 20px;
+            text-align: center;
+            font-size: 25px;
+        }
+
+        @media (max-width: 1024px) {
+            .ranking-section {
+                max-width: 1000px;
+                gap: 30px;
+                padding: 50px 30px;
+
+                
+            }
+
+            .rank-1 .rank-image-container {
+                width: 240px;
+                height: 180px;
+            }
+
+            .rank-2 .rank-image-container,
+            .rank-3 .rank-image-container {
+                width: 220px;
+                height: 165px;
+            }
+
+            /* Giảm hiệu ứng hover trên tablet */
+            .rank-image-container:hover {
+                transform: scale(1.15);
+            }
+
+            .rank-1 .rank-image-container:hover {
+                transform: scale(1.2);
+            }
+
+            
+        }
+
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 15px 20px;
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .nav-menu {
+                gap: 10px;
+                width: 100%;
+                justify-content: center;
+            }
+
+            .nav-link, .dropdown-toggle {
+                min-width: 120px;
+                padding: 10px 20px;
+                font-size: 14px;
+            }
+
+            .ranking-section {
+                flex-direction: column;
+                align-items: center;
+                margin: 20px;
+                gap: 40px;
+                padding: 40px 20px;
+            }
+
+            
+            .rank-item {
+                margin-bottom: 0;
+            }
+            
+            .rank-1 {
+                order: 1;
+                margin-bottom: 0;
+            }
+            
+            .rank-2 {
+                order: 2;
+            }
+            
+            .rank-3 {
+                order: 3;
+            }
+
+            .rank-1 .rank-image-container {
+                width: 280px;
+                height: 210px;
+            }
+
+            .rank-2 .rank-image-container,
+            .rank-3 .rank-image-container {
+                width: 250px;
+                height: 188px;
+            }
+
+            /* Giảm hiệu ứng hover trên mobile */
+            .rank-image-container:hover {
+                transform: scale(1.1);
+            }
+
+            .rank-1 .rank-image-container:hover {
+                transform: scale(1.15);
+            }
+
+            .rank-item:hover {
+                transform: translateY(-10px);
+            }
+
+            
+        }
+    </style>
+</head>
+<body>
+
+    
+    <div id="navbar-container"></div>
+    
+    <script src="components/navbar.js"></script>
+    <script>loadNavbar();</script>
+
+    
+    
+    <div class="content">
+        <h2>Chào mừng đến với LỚP HỌC THẦY CANG</h2>
+        <p>Nền tảng học tập và rèn luyện kiến thức hiệu quả</p>
+    </div>
+     Content Section 
+
+</body>
+</html> -->
+
+
+<!----------------------------------------------------------------------------------------------------------------------------------------------->
+<!--UPDATE2-->
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="logo.png">
+    <title>Học cùng thầy Cang</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+
+        /* Phần giải trí và hứng thú mới */
+        .fun-section {
+            max-width: 1200px;
+            margin: 20px auto 40px;
+            padding: 0 20px;
+        }
+
+        .section-title {
+            font-size: 32px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 30px;
+            color: #2c3e50;
+            position: relative;
+            padding-bottom: 15px;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 4px;
+            background: linear-gradient(to right, #3498db, #2ecc71);
+            border-radius: 2px;
+        }
+
+        .fun-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .fun-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            transition: all 0.4s ease;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .fun-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .fun-card-header {
+            padding: 20px 20px 10px;
+            background: linear-gradient(to right, #3498db, #2ecc71);
+            color: white;
+            text-align: center;
+        }
+
+        .fun-card-title {
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .fun-card-subtitle {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .fun-card-content {
+            padding: 20px;
+        }
+
+        .fun-card-content p {
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+
+        .icon-large {
+            font-size: 50px;
+            text-align: center;
+            margin: 15px 0;
+            color: #3498db;
+        }
+
+        /* Phần trò chơi mini */
+        .mini-game-container {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 20px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .game-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #2c3e50;
+            text-align: center;
+        }
+
+        .game-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .game-display {
+            font-size: 28px;
+            font-weight: bold;
+            color: #e74c3c;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            width: 100%;
+            border: 2px dashed #ddd;
+        }
+
+        .game-controls {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .game-btn {
+            padding: 12px 24px;
+            background: linear-gradient(to right, #3498db, #2980b9);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 16px;
+        }
+
+        .game-btn:hover {
+            background: linear-gradient(to right, #2980b9, #3498db);
+            transform: scale(1.05);
+        }
+
+        .game-btn:active {
+            transform: scale(0.98);
+        }
+
+        .game-btn.secondary {
+            background: linear-gradient(to right, #2ecc71, #27ae60);
+        }
+
+        .game-btn.secondary:hover {
+            background: linear-gradient(to right, #27ae60, #2ecc71);
+        }
+
+        .game-info {
+            margin-top: 15px;
+            text-align: center;
+            font-style: italic;
+            color: #7f8c8d;
+        }
+
+        /* Phần câu nói truyền cảm hứng */
+        .quote-section {
+            background: linear-gradient(135deg, #6a89cc, #b8e994);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 30px 0;
+            text-align: center;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .quote-section::before {
+            content: '"';
+            position: absolute;
+            top: -30px;
+            left: 20px;
+            font-size: 120px;
+            font-family: Georgia, serif;
+            color: rgba(255, 255, 255, 0.2);
+        }
+
+        .quote-text {
+            font-size: 24px;
+            font-weight: 500;
+            margin-bottom: 15px;
+            line-height: 1.5;
+            position: relative;
+            z-index: 1;
+        }
+
+        .quote-author {
+            font-size: 18px;
+            font-style: italic;
+            position: relative;
+            z-index: 1;
+        }
+
+        .quote-refresh {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            margin-top: 15px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .quote-refresh:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Phần thông báo vui nhộn */
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #e74c3c;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            display: none;
+            z-index: 1000;
+            max-width: 300px;
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .notification.show {
+            display: block;
+        }
+
+        .notification-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .notification-close {
+            position: absolute;
+            top: 5px;
+            right: 10px;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+        /* Phần cập nhật động */
+        .live-updates {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 30px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .updates-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #2c3e50;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .updates-list {
+            list-style: none;
+        }
+
+        .update-item {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .update-item:hover {
+            background: #f9f9f9;
+            padding-left: 20px;
+        }
+
+        .update-item:last-child {
+            border-bottom: none;
+        }
+
+        .update-icon {
+            width: 40px;
+            height: 40px;
+            background: #3498db;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .update-text {
+            flex-grow: 1;
+        }
+
+        .update-time {
+            font-size: 12px;
+            color: #7f8c8d;
+        }
+
+        /* Animation cho các phần tử */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        /* CSS hiện có (giữ nguyên) */
+        .ranking-title {
+            font-size: 28px;
+            font-weight: bold;
+            color: black;
+            text-align: center;
+            padding-bottom: 10px;
+            margin: 0;
+            background-color: yellow;
+        }
+
+        .ranking-section {
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            max-width: 1400px;
+            margin: 0px auto;
+            padding: 40px 40px 60px 40px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            gap: 50px;
+        }
+
+        .rank-item {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 0 1 auto;
+            transition: transform 0.4s ease;
+        }
+
+        .rank-item:hover {
+            transform: translateY(-15px);
+        }
+
+        .rank-2 {
+            order: 1;
+            margin-bottom: 0;
+        }
+
+        .rank-1 {
+            order: 2;
+            margin-bottom: 40px;
+        }
+
+        .rank-3 {
+            order: 3;
+            margin-bottom: 0;
+        }
+
+        .rank-image-container {
+            border-radius: 15px;
+            margin-bottom: 20px;
+            overflow: hidden;
+            position: relative;
+            border: 4px solid;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f8f9fa;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+        }
+
+        .rank-image-container:hover {
+            transform: scale(1.25);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            z-index: 100;
+            border-width: 5px;
+        }
+
+        .rank-1 .rank-image-container:hover {
+            transform: scale(1.3);
+            box-shadow: 0 25px 50px rgba(255,215,0,0.4);
+        }
+
+        .rank-1 .rank-image-container {
+            width: 280px;
+            height: 210px;
+            border-color: gold;
+            background: linear-gradient(135deg, #fff9e6, #fff3cc);
+        }
+
+        .rank-2 .rank-image-container {
+            width: 250px;
+            height: 188px;
+            border-color: silver;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+        }
+
+        .rank-3 .rank-image-container {
+            width: 250px;
+            height: 188px;
+            border-color: #cd7f32;
+            background: linear-gradient(135deg, #fdf5e6, #faebd7);
+        }
+
+        .rank-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 11px;
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .rank-image-container:hover .rank-image {
+            transform: scale(1.1);
+            filter: brightness(1.1) contrast(1.1);
+        }
+
+        .rank-badge {
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 12px;
+            padding: 8px 20px;
+            border-radius: 25px;
+            color: white;
+            transition: all 0.4s ease;
+        }
+
+        .rank-item:hover .rank-badge {
+            transform: scale(1.1);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .rank-1 .rank-badge {
+            background: gold;
+            color: #333;
+        }
+
+        .rank-2 .rank-badge {
+            background: silver;
+            color: #333;
+        }
+
+        .rank-3 .rank-badge {
+            background: #cd7f32;
+            color: white;
+        }
+
+        .rank-name {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            transition: all 0.4s ease;
+        }
+
+        .rank-item:hover .rank-name {
+            transform: scale(1.05);
+            color: #007bff;
+        }
+
+        .rank-score {
+            color: #666;
+            font-size: 16px;
+            font-weight: 500;
+            transition: all 0.4s ease;
+        }
+
+        .rank-item:hover .rank-score {
+            transform: scale(1.05);
+            color: #ff6b6b;
+            font-weight: bold;
+        }
+
+        .content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 10px 20px;
+            text-align: center;
+            font-size: 25px;
+        }
+
+        @media (max-width: 1024px) {
+            .ranking-section {
+                max-width: 1000px;
+                gap: 30px;
+                padding: 50px 30px;
+            }
+
+            .rank-1 .rank-image-container {
+                width: 240px;
+                height: 180px;
+            }
+
+            .rank-2 .rank-image-container,
+            .rank-3 .rank-image-container {
+                width: 220px;
+                height: 165px;
+            }
+
+            .rank-image-container:hover {
+                transform: scale(1.15);
+            }
+
+            .rank-1 .rank-image-container:hover {
+                transform: scale(1.2);
+            }
+            
+            .fun-grid {
+                grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            }
+        }
+
+        @media (max-width: 768px) {
+            .ranking-section {
+                flex-direction: column;
+                align-items: center;
+                margin: 20px;
+                gap: 40px;
+                padding: 40px 20px;
+            }
+            
+            .rank-item {
+                margin-bottom: 0;
+            }
+            
+            .rank-1 {
+                order: 1;
+                margin-bottom: 0;
+            }
+            
+            .rank-2 {
+                order: 2;
+            }
+            
+            .rank-3 {
+                order: 3;
+            }
+
+            .rank-1 .rank-image-container {
+                width: 280px;
+                height: 210px;
+            }
+
+            .rank-2 .rank-image-container,
+            .rank-3 .rank-image-container {
+                width: 250px;
+                height: 188px;
+            }
+
+            .rank-image-container:hover {
+                transform: scale(1.1);
+            }
+
+            .rank-1 .rank-image-container:hover {
+                transform: scale(1.15);
+            }
+
+            .rank-item:hover {
+                transform: translateY(-10px);
+            }
+            
+            .section-title {
+                font-size: 26px;
+            }
+            
+            .fun-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .game-controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .game-btn {
+                width: 100%;
+                max-width: 250px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar (giữ nguyên) -->
+    <div id="navbar-container"></div>
+    <!-- <script src="components/navbar.js"></script>
+    <script>loadNavbar();</script> -->
+    
+    <!-- Content Section -->
+    <div class="content">
+        <h2>Chào mừng đến với LỚP HỌC THẦY CANG</h2>
+        <p>Nền tảng học tập và rèn luyện kiến thức hiệu quả</p>
+    </div>
+    
+    <!-- Phần giải trí và hứng thú mới -->
+    <div class="fun-section">
+        <h2 class="section-title">Khu Vực Giải Trí & Truyền Cảm Hứng</h2>
+        
+        <!-- Các hoạt động thú vị -->
+        <div class="fun-grid">
+            <div class="fun-card">
+                <div class="fun-card-header">
+                    <div class="fun-card-title">Thử Thách Học Tập</div>
+                    <div class="fun-card-subtitle">Mỗi ngày một thử thách mới</div>
+                </div>
+                <div class="fun-card-content">
+                    <div class="icon-large">🎯</div>
+                    <p><strong>Thử thách hôm nay:</strong> Giải 5 bài tập IC3 trong 10 phút</p>
+                    <p>Hoàn thành thử thách để nhận điểm thưởng và leo hạng!</p>
+                    <button class="game-btn" onclick="startDailyChallenge()">Bắt đầu thử thách</button>
+                </div>
+                 
+            </div>
+
+            
+            <div class="fun-card">
+                <div class="fun-card-header">
+                    <div class="fun-card-title">Thành Tựu Cá Nhân</div>
+                    <div class="fun-card-subtitle">Khám phá thành tích của bạn</div>
+                </div>
+                <div class="fun-card-content">
+                    <div class="icon-large">🏆</div>
+                    <p>Bạn đã hoàn thành <strong id="completed-challenges">12</strong> thử thách</p>
+                    <p>Điểm kinh nghiệm: <strong id="xp-points">850</strong> XP</p>
+                    <p>Cấp độ hiện tại: <strong id="current-level">Học viên Xuất sắc</strong></p>
+                    <button class="game-btn secondary" onclick="viewAchievements()">Xem thành tựu</button>
+                </div>
+            </div>
+            
+            <div class="fun-card">
+                <div class="fun-card-header">
+                    <div class="fun-card-title">Mẹo Học Nhanh</div>
+                    <div class="fun-card-subtitle">Bí quyết từ thầy Cang</div>
+                </div>
+                <div class="fun-card-content">
+                    <div class="icon-large">💡</div>
+                    <p id="study-tip">"Học 25 phút, nghỉ 5 phút - Phương pháp Pomodoro giúp tập trung tốt hơn!"</p>
+                    <p><em>Mẹo sẽ thay đổi mỗi giờ</em></p>
+                    <button class="game-btn" onclick="changeStudyTip()">Mẹo tiếp theo</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Trò chơi mini -->
+        <div class="mini-game-container">
+            <h3 class="game-title">Trò Chơi Nhanh: Đoán ca dao tục ngữ Việt Nam</h3>
+            <div class="game-area">
+                <div class="game-display" id="quote-game-display">Bấm "Bắt đầu" để chơi!</div>
+                <div class="game-controls">
+                    <button class="game-btn" onclick="startQuoteGame()">Bắt đầu</button>
+                    <button class="game-btn secondary" onclick="showHint()">Gợi ý</button>
+                    <button class="game-btn" onclick="guessQuote()">Đoán ngay</button>
+                </div>
+                <div class="game-info" id="game-info">Bạn có 3 lần đoán. Hãy đoán câu nói nổi tiếng của thầy Cang!</div>
+            </div>
+        </div>
+
+        <div>
+           
+            <h3 class="game-title">Trò Chơi Nhanh: Bắn bóng</h3>
+            <div class="game-area">
+            <iframe 
+                src="game-bubble.html" 
+                width="auto" 
+                height="auto" 
+                style="border:none; display:block; margin:auto;">
+            </iframe>
+            </div>
+        </div>
+        
+        <!-- Câu nói truyền cảm hứng -->
+        <div class="quote-section">
+            <div class="quote-text" id="inspirational-quote">"Học tập không phải là nhiệm vụ, mà là cơ hội để nắm bắt tri thức và làm chủ tương lai của chính mình."</div>
+            <div class="quote-author" id="quote-author">- Thầy Cang</div>
+            <button class="quote-refresh" onclick="refreshQuote()">Câu nói mới</button>
+        </div>
+        
+        <!-- Cập nhật động -->
+        <div class="live-updates">
+            <h3 class="updates-title"><span class="pulse">🔔</span> Hoạt Động Mới Nhất</h3>
+            <ul class="updates-list" id="updates-list">
+                <!-- Cập nhật sẽ được thêm bằng JavaScript -->
+            </ul>
+        </div>
+    </div>
+    
+    <!-- Thông báo vui nhộn -->
+    <div class="notification" id="fun-notification">
+        <button class="notification-close" onclick="closeNotification()">×</button>
+        <div class="notification-title" id="notification-title">Thông báo vui!</div>
+        <div id="notification-message">Chúc bạn một ngày học tập hiệu quả!</div>
+    </div>
+
+    <!-- Script cho phần giải trí -->
+    <script>
+        // Dữ liệu cho các tính năng giải trí
+        const studyTips = [
+            "Học 25 phút, nghỉ 5 phút - Phương pháp Pomodoro giúp tập trung tốt hơn!",
+            "Ôn tập bài cũ trong 10 phút trước khi học bài mới sẽ giúp ghi nhớ lâu hơn.",
+            "Sử dụng sơ đồ tư duy (mindmap) để hệ thống hóa kiến thức phức tạp.",
+            "Giảng lại bài cho người khác là cách tốt nhất để kiểm tra mức độ hiểu bài.",
+            "Đặt mục tiêu nhỏ mỗi ngày và tự thưởng khi hoàn thành sẽ tạo động lực học tập.",
+            "Đừng nhìn màn hình máy tính quá 180 phút nhá!!.",
+            "Học 30 phút mỗi ngày tốt hơn học 3 giờ một lần."
+        ];
+        
+        const teacherQuotes = [
+            "Học như con thuyền ngược nước, không tiến ắt sẽ lùi.",
+            "Kiến thức là vô tận, nhưng nếu không bắt đầu thì mãi mãi không có gì.",
+            "Thành công bắt đầu từ ý chí, ý chí bắt đầu từ sự kiên trì.",
+            "Đừng so sánh bản thân với người khác, hãy so sánh với chính mình của ngày hôm qua.",
+            "Mỗi lần vấp ngã là một lần đứng lên mạnh mẽ hơn.",
+            "Học không chỉ để biết mà còn để làm, để ứng dụng vào cuộc sống.",
+            "Vừa học vừa hỏi, hiểu nhanh hơn 10 lần."
+        ];
+        
+        const inspirationalQuotes = [
+            {text: "Học tập không phải là nhiệm vụ, mà là cơ hội để nắm bắt tri thức và làm chủ tương lai của chính mình.", author: "Thầy Cang"},
+            {text: "Đường tuy ngắn, không đi không đến. Việc tuy nhỏ, không làm không nên.", author: "Khổng Tử"},
+            {text: "Giáo dục là vũ khí mạnh nhất mà người ta có thể sử dụng để thay đổi thế giới.", author: "Nelson Mandela"},
+            {text: "Thất bại chỉ là cơ hội để bắt đầu lại một cách thông minh hơn.", author: "Henry Ford"},
+            {text: "Học, học nữa, học mãi. Đó là chìa khóa mở ra cánh cửa của mọi cơ hội.", author: "V.I. Lenin"},
+            {text: "Người thầy trung bình chỉ biết nói, người thầy giỏi biết giải thích, người thầy xuất chúng biết minh họa, người thầy vĩ đại biết cách truyền cảm hứng.", author: "William Arthur Ward"}
+        ];
+        
+        const funnyNotifications = [
+            {title: "Thông báo vui!", message: "Bạn đã sẵn sàng cho một ngày học tập đầy năng lượng chưa?"},
+            {title: "Thông báo vui!", message: "Cố lên bạn sắp đạt được 1000 điểm rồi đó!!"},
+            {title: "Tin vui!", message: "Có 3 học sinh vừa hoàn thành thử thách hôm nay. Tiếp tục phát huy nhé!"},
+            {title: "Nhắc nhở thú vị!", message: "Đừng quên uống nước và thư giãn mắt sau mỗi giờ học!"},
+            {title: "Điều đặc biệt!", message: "Hôm nay là ngày đẹp trời để chinh phục kiến thức mới!"},
+            {title: "Chúc mừng!", message: "Lớp học thầy Cang vừa đón thành viên thứ 100!"}
+        ];
+        
+        const gameQuotes = [
+            "Học phải đi đôi với hành",
+            "Có công mài sắt có ngày nên kim",
+            "Kiến tha lâu đầy tổ",
+            "Uống nước nhớ nguồn",
+            "Tốt gỗ hơn tốt nước sơn",
+            "Gần mực thì đen, gần đèn thì sáng",
+            "Ăn quả nhớ kẻ trồng cây",
+            "Một cây làm chẳng nên non",
+            "Đoàn kết là sức mạnh",
+            "Tiên học lễ, hậu học văn",
+            "Chậm mà chắc",
+            "Ở hiền gặp lành",
+            "Tốt gỗ hơn tốt nước sơn",
+            "Một điều nhịn, chín điều lành",
+            "Thương người như thể thương thân",
+            "Lời nói chẳng mất tiền mua, lựa lời mà nói cho vừa lòng nhau",
+        ];
+        
+        // Biến cho trò chơi
+        let currentGameQuote = "";
+        let gameStarted = false;
+        let guessCount = 3;
+        
+        // Khởi tạo trang
+        document.addEventListener('DOMContentLoaded', function() {
+            // Hiển thị mẹo học tập ngẫu nhiên
+            changeStudyTip();
+            
+            // Hiển thị câu nói truyền cảm hứng ngẫu nhiên
+            refreshQuote();
+            
+            // Tạo các cập nhật động
+            generateLiveUpdates();
+            
+            // Hiển thị thông báo vui sau 3 giây
+            setTimeout(showRandomNotification, 3000);
+            
+            // Cập nhật thời gian thực cho các cập nhật
+            setInterval(updateLiveUpdates, 30000); // Cập nhật mỗi 30 giây
+        });
+        
+        // Hàm hiển thị mẹo học tập ngẫu nhiên
+        function changeStudyTip() {
+            const randomIndex = Math.floor(Math.random() * studyTips.length);
+            document.getElementById('study-tip').textContent = studyTips[randomIndex];
+        }
+        
+        // Hàm làm mới câu nói truyền cảm hứng
+        function refreshQuote() {
+            const randomIndex = Math.floor(Math.random() * inspirationalQuotes.length);
+            const quote = inspirationalQuotes[randomIndex];
+            document.getElementById('inspirational-quote').textContent = `"${quote.text}"`;
+            document.getElementById('quote-author').textContent = `- ${quote.author}`;
+        }
+        
+        // Hàm hiển thị thông báo vui ngẫu nhiên
+        function showRandomNotification() {
+            const randomIndex = Math.floor(Math.random() * funnyNotifications.length);
+            const notification = funnyNotifications[randomIndex];
+            
+            document.getElementById('notification-title').textContent = notification.title;
+            document.getElementById('notification-message').textContent = notification.message;
+            document.getElementById('fun-notification').classList.add('show');
+            
+            // Tự động đóng thông báo sau 5 giây
+            setTimeout(() => {
+                document.getElementById('fun-notification').classList.remove('show');
+            }, 5000);
+        }
+        
+        // Hàm đóng thông báo
+        function closeNotification() {
+            document.getElementById('fun-notification').classList.remove('show');
+        }
+        
+        // Hàm tạo các cập nhật động
+        function generateLiveUpdates() {
+            const updatesList = document.getElementById('updates-list');
+            updatesList.innerHTML = '';
+            
+            const updates = [
+                {icon: "🎉", text: "Minh Anh vừa đạt điểm cao nhất trong bài kiểm tra IC3 Level 1", time: "2 phút trước"},
+                {icon: "🚀", text: "Tuấn Kiệt vừa hoàn thành thử thách học tập hôm nay", time: "15 phút trước"},
+                {icon: "⭐", text: "Khánh Linh đã leo lên vị trí thứ 5 trên bảng xếp hạng", time: "1 giờ trước"},
+                {icon: "📚", text: "Bài giảng mới về Microsoft Excel đã được thêm vào", time: "3 giờ trước"},
+                {icon: "🏆", text: "Top 3 học sinh xuất sắc tháng này sẽ nhận phần thưởng đặc biệt", time: "5 giờ trước"},
+                {icon: "⭐", text: "Vũ Khánh đã leo lên vị trí thứ 3 trên bảng xếp hạng", time: "2 phút trước"},
+            ];
+            
+            updates.forEach(update => {
+                const li = document.createElement('li');
+                li.className = 'update-item';
+                li.innerHTML = `
+                    <div class="update-icon">${update.icon}</div>
+                    <div class="update-text">${update.text}</div>
+                    <div class="update-time">${update.time}</div>
+                `;
+                updatesList.appendChild(li);
+            });
+        }
+        
+        // Hàm cập nhật động thời gian
+        function updateLiveUpdates() {
+            const timeElements = document.querySelectorAll('.update-time');
+            timeElements.forEach(el => {
+                const currentText = el.textContent;
+                if (currentText.includes("phút trước")) {
+                    const minutes = parseInt(currentText) + 1;
+                    el.textContent = `${minutes} phút trước`;
+                } else if (currentText.includes("giây trước")) {
+                    const seconds = parseInt(currentText) + 30;
+                    if (seconds >= 60) {
+                        el.textContent = "1 phút trước";
+                    } else {
+                        el.textContent = `${seconds} giây trước`;
+                    }
+                }
+            });
+            
+            // Thêm cập nhật mới ngẫu nhiên
+            const newUpdates = [
+                {icon: "✨", text: "Một học sinh mới vừa tham gia lớp học thầy Cang", time: "vài giây trước"},
+                {icon: "💪", text: "Thử thách học tập mới đã được mở khóa", time: "vài giây trước"},
+                {icon: "🎯", text: "5 học sinh vừa hoàn thành bài tập IC3 Level 2", time: "vài giây trước"}
+            ];
+            
+            // Thỉnh thoảng thêm cập nhật mới
+            if (Math.random() > 0.7) {
+                const randomUpdate = newUpdates[Math.floor(Math.random() * newUpdates.length)];
+                const updatesList = document.getElementById('updates-list');
+                const li = document.createElement('li');
+                li.className = 'update-item';
+                li.innerHTML = `
+                    <div class="update-icon">${randomUpdate.icon}</div>
+                    <div class="update-text">${randomUpdate.text}</div>
+                    <div class="update-time">${randomUpdate.time}</div>
+                `;
+                updatesList.prepend(li);
+                
+                // Giới hạn số lượng cập nhật
+                if (updatesList.children.length > 6) {
+                    updatesList.removeChild(updatesList.lastChild);
+                }
+            }
+        }
+        
+        // Hàm cho trò chơi đoán câu nói
+        function startQuoteGame() {
+            const randomIndex = Math.floor(Math.random() * gameQuotes.length);
+            currentGameQuote = gameQuotes[randomIndex];
+            
+            // Tạo phiên bản có dấu gạch dưới
+            const hiddenQuote = currentGameQuote.replace(/[a-zA-Zàáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ]/g, '_');
+            
+            document.getElementById('quote-game-display').textContent = hiddenQuote;
+            document.getElementById('game-info').textContent = `Bạn có ${guessCount} lần đoán. Hãy đoán câu nói nổi tiếng!`;
+            gameStarted = true;
+        }
+        
+        function showHint() {
+            if (!gameStarted) {
+                alert("Hãy bắt đầu trò chơi trước!");
+                return;
+            }
+            
+            // Hiển thị một chữ cái ngẫu nhiên
+            const display = document.getElementById('quote-game-display').textContent;
+            const hiddenChars = [];
+            
+            for (let i = 0; i < display.length; i++) {
+                if (display[i] === '_') {
+                    hiddenChars.push(i);
+                }
+            }
+            
+            if (hiddenChars.length > 0) {
+                const randomIndex = hiddenChars[Math.floor(Math.random() * hiddenChars.length)];
+                const newDisplay = display.split('');
+                newDisplay[randomIndex] = currentGameQuote[randomIndex];
+                document.getElementById('quote-game-display').textContent = newDisplay.join('');
+                
+                document.getElementById('game-info').textContent = `Một chữ cái đã được tiết lộ! Còn ${guessCount} lần đoán.`;
+            }
+        }
+        
+        function guessQuote() {
+            if (!gameStarted) {
+                alert("Hãy bắt đầu trò chơi trước!");
+                return;
+            }
+            
+            const userGuess = prompt("Nhập câu nói bạn đoán:");
+            if (userGuess && userGuess.toLowerCase() === currentGameQuote.toLowerCase()) {
+                alert(`Chính xác! Câu nói là: "${currentGameQuote}"`);
+                document.getElementById('quote-game-display').textContent = currentGameQuote;
+                document.getElementById('game-info').textContent = "Chúc mừng! Bạn đã đoán đúng!";
+                gameStarted = false;
+                
+                // Cập nhật điểm
+                const xpElement = document.getElementById('xp-points');
+                let currentXP = parseInt(xpElement.textContent);
+                currentXP += 50;
+                xpElement.textContent = currentXP;
+                
+                showRandomNotification();
+            } else {
+                guessCount--;
+                if (guessCount > 0) {
+                    alert(`Sai rồi! Bạn còn ${guessCount} lần đoán.`);
+                    document.getElementById('game-info').textContent = `Sai rồi! Bạn còn ${guessCount} lần đoán.`;
+                } else {
+                    alert(`Hết lượt đoán! Câu nói đúng là: "${currentGameQuote}"`);
+                    document.getElementById('quote-game-display').textContent = currentGameQuote;
+                    document.getElementById('game-info').textContent = "Trò chơi kết thúc! Bấm 'Bắt đầu' để chơi lại.";
+                    gameStarted = false;
+                    guessCount = 3;
+                }
+            }
+        }
+        
+        // Hàm cho các tính năng khác
+        function startDailyChallenge() {
+            alert("Thử thách hàng ngày đã bắt đầu! Bạn có 10 phút để hoàn thành 5 bài tập IC3.");
+            
+            // Cập nhật thông tin
+            const challengesElement = document.getElementById('completed-challenges');
+            let challenges = parseInt(challengesElement.textContent);
+            challenges++;
+            challengesElement.textContent = challenges;
+            
+            const xpElement = document.getElementById('xp-points');
+            let currentXP = parseInt(xpElement.textContent);
+            currentXP += 100;
+            xpElement.textContent = currentXP;
+            
+            // Hiển thị thông báo
+            document.getElementById('notification-title').textContent = "Thử thách bắt đầu!";
+            document.getElementById('notification-message').textContent = "Bạn có 10 phút để hoàn thành 5 bài tập IC3. Chúc may mắn!";
+            document.getElementById('fun-notification').classList.add('show');
+            
+            setTimeout(() => {
+                document.getElementById('fun-notification').classList.remove('show');
+            }, 5000);
+        }
+        
+        function viewAchievements() {
+            alert("Tính năng xem thành tựu chi tiết đang được phát triển. Quay lại sau nhé!");
+        }
+    </script>
+    
+    <script src="components/navbar.js"></script>
+    <script>loadNavbar();</script>
+</body>
+</html>
